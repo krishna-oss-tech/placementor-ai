@@ -17,7 +17,7 @@ export default function AptitudePage() {
   const [difficulty, setDifficulty] = useState('');
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -64,19 +64,20 @@ export default function AptitudePage() {
   };
 
   const currentQuestion = questions[currentIndex];
-  const answered = selected !== '';
+  const answered = selected !== null && selected !== '';
 
-  const handleAnswer = (option) => {
+  const handleAnswer = (optionIndex) => {
     if (answered) return;
-    setSelected(option);
+    setSelected(optionIndex);
     if (!currentQuestion) return;
 
-    const isCorrect = option === currentQuestion.answer;
+    const correctIndex = currentQuestion.correct ?? currentQuestion.answer;
+    const isCorrect = optionIndex === correctIndex;
     if (isCorrect) setScore((prev) => prev + 1);
 
     setFeedback({
       type: isCorrect ? 'success' : 'error',
-      correct: currentQuestion.answer,
+      correct: correctIndex,
       explanation: currentQuestion.explanation || 'No explanation available.',
       isCorrect,
     });
@@ -165,11 +166,12 @@ export default function AptitudePage() {
               <p className="text-gray-900 text-lg font-medium">{currentQuestion.question}</p>
             </div>
             <div className="grid gap-4">
-              {['A', 'B', 'C', 'D'].map((optionKey) => {
-                const optionText = currentQuestion.options?.[optionKey];
-                const isSelected = selected === optionKey;
-                const isCorrect = selected && optionKey === currentQuestion.answer;
-                const wrongSelected = selected === optionKey && optionKey !== currentQuestion.answer;
+              {currentQuestion.options?.map((optionText, index) => {
+                const letter = ['A', 'B', 'C', 'D'][index] || String.fromCharCode(65 + index);
+                const isSelected = selected === index;
+                const correctIndex = currentQuestion.correct ?? currentQuestion.answer;
+                const isCorrect = isSelected && index === correctIndex;
+                const wrongSelected = isSelected && index !== correctIndex;
                 const baseClass = 'rounded-3xl p-4 text-left border transition-all';
                 const stateClass = isCorrect
                   ? 'bg-green-50 border-green-200 text-green-900'
@@ -177,9 +179,9 @@ export default function AptitudePage() {
                   ? 'bg-red-50 border-red-200 text-red-900'
                   : 'bg-white border-gray-200 hover:border-indigo-300 hover:bg-indigo-50';
                 return (
-                  <button key={optionKey} onClick={() => handleAnswer(optionKey)} disabled={answered} className={`${baseClass} ${stateClass}`}>
+                  <button key={index} onClick={() => handleAnswer(index)} disabled={answered} className={`${baseClass} ${stateClass}`}>
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center">{optionKey}</span>
+                      <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center">{letter}</span>
                       <span className="text-sm text-gray-900">{optionText}</span>
                     </div>
                   </button>
