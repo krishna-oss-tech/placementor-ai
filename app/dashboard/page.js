@@ -1,5 +1,9 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Brain, FileText, Building2, TrendingUp, Lock } from 'lucide-react';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const features = [
   { icon: <Brain size={24} />, title: "AI Mock Interview", desc: "Practice HR, Technical & Aptitude rounds", href: "/interview", free: true },
@@ -9,6 +13,24 @@ const features = [
 ];
 
 export default function Dashboard() {
+  const [firstName, setFirstName] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      const name = user.displayName || user.email || '';
+      const first = name.split(' ')[0] || 'there';
+      setFirstName(first);
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
   return (
     <main className="min-h-screen bg-gray-50">
 
@@ -22,7 +44,9 @@ export default function Dashboard() {
 
       {/* Welcome */}
       <div className="max-w-4xl mx-auto px-6 pt-10 pb-4">
-        <h1 className="text-2xl font-bold mb-1">Welcome back! 👋</h1>
+        <h1 className="text-2xl font-bold mb-1">
+          Welcome back{firstName ? `, ${firstName}` : ''}! 👋
+        </h1>
         <p className="text-gray-500">Ready to crack your placement today?</p>
       </div>
 
