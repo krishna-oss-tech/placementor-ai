@@ -48,6 +48,22 @@ export default function CompanyPage() {
     setLoading(false);
   };
 
+  const escapeHtml = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  const formatText = (text) => {
+    const escaped = escapeHtml(text);
+    const withStrong = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return withStrong.replace(/\n/g, '<br/>');
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
 
@@ -87,13 +103,13 @@ export default function CompanyPage() {
           <div className="flex-1 overflow-y-auto px-6 py-6 max-w-3xl mx-auto w-full space-y-4">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'bg-indigo-600 text-white rounded-br-sm'
-                    : 'bg-white border border-gray-100 text-gray-800 rounded-bl-sm'
-                }`}>
-                  {msg.text}
-                </div>
+                {msg.role === 'user' ? (
+                  <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap bg-indigo-600 text-white rounded-br-sm`}>
+                    {msg.text}
+                  </div>
+                ) : (
+                  <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap bg-white border border-gray-100 text-gray-800 rounded-bl-sm`} dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
+                )}
               </div>
             ))}
             {loading && (
