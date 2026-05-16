@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 
 const topics = [
   { key: 'Quantitative', label: 'Quantitative' },
@@ -21,6 +21,7 @@ export default function AptitudePage() {
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const selectTopic = (key) => {
     setTopic(key);
@@ -29,6 +30,7 @@ export default function AptitudePage() {
 
   const selectDifficulty = async (level) => {
     setDifficulty(level);
+    setError('');
     setLoading(true);
     try {
       const res = await fetch('/api/aptitude', {
@@ -37,17 +39,28 @@ export default function AptitudePage() {
         body: JSON.stringify({ topic, difficulty: level }),
       });
       const data = await res.json();
-      setQuestions(data.questions || []);
+      console.log('APTITUDE RESPONSE:', data);
+
+      if (!res.ok || !data || data.error || !Array.isArray(data) || data.length === 0) {
+        const message = data?.error || 'Unable to generate questions. Please try again.';
+        setQuestions([]);
+        setError(message);
+        return;
+      }
+
+      setQuestions(data);
       setStage('quiz');
       setCurrentIndex(0);
       setSelected('');
       setFeedback(null);
       setScore(0);
     } catch (error) {
+      console.error('APTITUDE FETCH ERROR:', error);
       setQuestions([]);
-      setFeedback({ type: 'error', message: 'Unable to load questions. Please try again.' });
+      setError('Unable to load questions. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const currentQuestion = questions[currentIndex];
@@ -111,17 +124,33 @@ export default function AptitudePage() {
         )}
 
         {stage === 'difficulty' && (
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
+          <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm min-h-[320px] flex flex-col justify-center">
             <h2 className="text-2xl font-bold mb-3">Select difficulty</h2>
             <p className="text-gray-500 mb-6">Topic: <span className="font-semibold text-indigo-600">{topic}</span></p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              {difficulties.map((level) => (
-                <button key={level} onClick={() => selectDifficulty(level)} className="flex-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-2xl px-6 py-4 font-semibold hover:bg-indigo-100 transition-all">
-                  {level}
-                </button>
-              ))}
-            </div>
-            {loading && <p className="mt-6 text-gray-500">Loading questions...</p>}
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="animate-spin text-indigo-600" size={36} />
+                <p className="mt-4 text-gray-600">Generating questions...</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {difficulties.map((level) => (
+                    <button key={level} onClick={() => selectDifficulty(level)} className="flex-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-2xl px-6 py-4 font-semibold hover:bg-indigo-100 transition-all">
+                      {level}
+                    </button>
+                  ))}
+                </div>
+                {error && (
+                  <div className="mt-6 rounded-3xl border border-red-100 bg-red-50 p-5 text-sm text-red-800">
+                    <p>{error}</p>
+                    <button onClick={() => selectDifficulty(difficulty)} className="mt-4 inline-flex items-center justify-center rounded-2xl bg-white border border-red-200 px-4 py-2 text-red-700 font-semibold hover:bg-red-100">
+                      Try Again
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 

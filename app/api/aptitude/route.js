@@ -11,7 +11,7 @@ export async function POST(request) {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `Generate exactly 5 aptitude questions for topic: ${topic}, difficulty: ${difficulty}. \nReturn ONLY a valid JSON array with no markdown, no backticks, just raw JSON:\n[{\n  question: string,\n  options: [string, string, string, string],\n  correct: 0,\n  explanation: string\n}]\ncorrect is the index (0,1,2,3) of the correct option.`
+              text: `Generate exactly 5 multiple choice aptitude questions for topic: ${topic}, difficulty: ${difficulty}.\nReturn ONLY a raw JSON array with no markdown, no backticks, no explanation.\nEach object must have exactly these fields:\n{\n  "question": "the question text",\n  "options": ["option A text", "option B text", "option C text", "option D text"],\n  "correct": 0,\n  "explanation": "why this answer is correct"\n}\ncorrect is the index 0,1,2 or 3 of the correct option in the options array.\nMake sure options array always has exactly 4 strings with actual text content.`
             }]
           }],
           generationConfig: { temperature: 0.2 }
