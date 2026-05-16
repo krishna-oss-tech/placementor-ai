@@ -20,17 +20,12 @@ export async function POST(request) {
     );
 
     const raw = await res.json();
-    console.log('RAW APTITUDE RESPONSE:', JSON.stringify(raw));
-
     const text = raw?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text;
-    if (!text) {
-      return Response.json({ error: 'No text in response' }, { status: 500 });
-    }
+    if (!text) return Response.json({ error: 'No response' }, { status: 500 });
 
-    const cleaned = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleaned);
-
-    return Response.json(parsed);
+    const clean = text.replace(/```json|```/g, '').trim();
+    const questions = JSON.parse(clean);
+    return Response.json(questions);
   } catch (error) {
     console.error('APTITUDE API ERROR:', error?.message || error);
     return Response.json({ error: error?.message || String(error) }, { status: 500 });
