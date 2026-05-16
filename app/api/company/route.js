@@ -9,7 +9,7 @@ export async function POST(request) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `You are a senior interviewer at ${company}. You are interviewing a final year B.E. student for a software engineer role. Ask company-specific questions that ${company} is known for asking. After each answer give score out of 10, specific feedback, and next question. Be direct and professional. Student answer: ${message}` }] }],
+          contents: [{ parts: [{ text: `You are a senior interviewer at ${company}. Interview a final year B.E. student for software engineer role.\n\nIMPORTANT: Always respond in EXACTLY this format:\nSCORE: X/10\nFEEDBACK: your feedback here in 2-3 lines\nNEXT QUESTION: your next question here\n\nStudent answer: ${message}` }] }],
           generationConfig: { temperature: 0.2 }
         })
       }
