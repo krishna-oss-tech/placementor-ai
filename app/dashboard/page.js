@@ -8,7 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 const features = [
   { icon: <Brain size={24} />, title: "AI Mock Interview", desc: "Practice HR, Technical & Aptitude rounds", href: "/interview", free: true },
   { icon: <FileText size={24} />, title: "Resume Analyzer", desc: "Get ATS score & instant fixes", href: "/resume", free: false },
-  { icon: <Building2 size={24} />, title: "Company Prep", desc: "TCS, Infosys, Wipro & more", href: "/company", free: false },
+  { icon: <Building2 size={24} />, title: "Company Prep", desc: "TCS, Infosys, Wipro & more", href: "/company", free: true },
   { icon: <TrendingUp size={24} />, title: "Progress Tracker", desc: "Track your improvement daily", href: "/progress", free: true },
 ];
 
