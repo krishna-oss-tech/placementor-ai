@@ -59,9 +59,8 @@ export default function CompanyPage() {
   };
 
   const formatText = (text) => {
-    const escaped = escapeHtml(text);
-    const withStrong = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    return withStrong.replace(/\n/g, '<br/>');
+    const escaped = escapeHtml(text).replace(/\*\*/g, '');
+    return escaped.replace(/\n/g, '<br/>');
   };
 
   const parseAIReply = (text) => {
@@ -69,11 +68,11 @@ export default function CompanyPage() {
     // Remove any echoed Student Answer blocks (up to the next labelled section)
     const cleaned = text.replace(/Student answer:\s*[\s\S]*?(?=Score:|Feedback:|Next Question:|$)/i, '').trim();
 
-    const scoreMatch = cleaned.match(/Score:\s*([0-9]+(?:\.[0-9]+)?)/i);
+    const scoreMatch = cleaned.match(/(\d+)\/10/);
     const feedbackMatch = cleaned.match(/Feedback:\s*([\s\S]*?)(?=Next Question:|Score:|$)/i);
     const nextQMatch = cleaned.match(/Next Question:\s*([\s\S]*)/i);
 
-    const score = scoreMatch ? parseFloat(scoreMatch[1]) : null;
+    const score = scoreMatch ? parseInt(scoreMatch[1], 10) : null;
     const feedback = feedbackMatch ? feedbackMatch[1].trim() : null;
     const nextQuestion = nextQMatch ? nextQMatch[1].trim() : null;
 
