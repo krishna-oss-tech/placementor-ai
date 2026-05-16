@@ -64,6 +64,29 @@ export default function CompanyPage() {
     return withStrong.replace(/\n/g, '<br/>');
   };
 
+  const parseAIReply = (text) => {
+    if (!text) return null;
+    // Remove any echoed Student Answer blocks (up to the next labelled section)
+    const cleaned = text.replace(/Student answer:\s*[\s\S]*?(?=Score:|Feedback:|Next Question:|$)/i, '').trim();
+
+    const scoreMatch = cleaned.match(/Score:\s*([0-9]+(?:\.[0-9]+)?)/i);
+    const feedbackMatch = cleaned.match(/Feedback:\s*([\s\S]*?)(?=Next Question:|Score:|$)/i);
+    const nextQMatch = cleaned.match(/Next Question:\s*([\s\S]*)/i);
+
+    const score = scoreMatch ? parseFloat(scoreMatch[1]) : null;
+    const feedback = feedbackMatch ? feedbackMatch[1].trim() : null;
+    const nextQuestion = nextQMatch ? nextQMatch[1].trim() : null;
+
+    return { score, feedback, nextQuestion, raw: cleaned };
+  };
+
+  const scoreBadgeClass = (score) => {
+    if (score == null) return 'bg-gray-100 text-gray-700';
+    if (score >= 7) return 'bg-green-100 text-green-800';
+    if (score >= 5) return 'bg-amber-100 text-amber-800';
+    return 'bg-red-100 text-red-800';
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
 
@@ -108,7 +131,38 @@ export default function CompanyPage() {
                     {msg.text}
                   </div>
                 ) : (
-                  <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap bg-white border border-gray-100 text-gray-800 rounded-bl-sm`} dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
+                  (() => {
+                    const parts = parseAIReply(msg.text);
+                    if (!parts || (!parts.feedback && !parts.nextQuestion && parts.score == null)) {
+                      // Fallback to plain formatted output
+                      return (
+                        <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap bg-white border border-gray-100 text-gray-800 rounded-bl-sm shadow-sm`} dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
+                      );
+                    }
+
+                    return (
+                      <div className="max-w-[80%] bg-white border border-gray-100 rounded-2xl shadow-sm text-sm overflow-hidden" style={{ borderLeftWidth: 4 }}>
+                        <div className="border-l-4 border-indigo-500 px-4 py-3">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="text-xs text-gray-500">Score</div>
+                            <div className={`px-2 py-1 rounded-full text-xs font-semibold ${scoreBadgeClass(parts.score)}`}>
+                              {parts.score != null ? `${parts.score}/10` : 'N/A'}
+                            </div>
+                          </div>
+
+                          <div className="mb-3">
+                            <div className="text-xs text-gray-500 mb-1">Feedback</div>
+                            <div className="bg-gray-50 p-3 rounded" dangerouslySetInnerHTML={{ __html: formatText(parts.feedback || 'No feedback provided.') }} />
+                          </div>
+
+                          <div>
+                            <div className="text-xs text-gray-500 mb-1">Next Question</div>
+                            <div className="bg-indigo-50 p-3 rounded text-indigo-800" dangerouslySetInnerHTML={{ __html: formatText(parts.nextQuestion || 'No next question.') }} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()
                 )}
               </div>
             ))}
