@@ -13,6 +13,7 @@ const features = [
 ];
 
 export default function Dashboard() {
+  const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState('');
   const router = useRouter();
 
@@ -23,6 +24,7 @@ export default function Dashboard() {
         return;
       }
 
+      setUser(user);
       const name = user.displayName || user.email || '';
       const first = name.split(' ')[0] || 'there';
       setFirstName(first);
@@ -30,6 +32,35 @@ export default function Dashboard() {
 
     return () => unsubscribe();
   }, [router]);
+
+  const handleUpgrade = async () => {
+    const res = await fetch('/api/payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 199, plan: 'pro' })
+    });
+    const data = await res.json();
+
+    const options = {
+      key: data.keyId,
+      amount: data.amount,
+      currency: data.currency,
+      name: 'PlaceMentor AI',
+      description: 'Pro Plan - Monthly',
+      order_id: data.orderId,
+      handler: function(response) {
+        alert('Payment Successful! Welcome to Pro!');
+      },
+      prefill: {
+        name: user?.displayName || '',
+        email: user?.email || ''
+      },
+      theme: { color: '#4f46e5' }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -92,7 +123,7 @@ export default function Dashboard() {
             <h3 className="font-bold text-lg">Upgrade to Pro — ₹199/month</h3>
             <p className="text-indigo-200 text-sm mt-1">Unlimited interviews, resume review & company-specific prep</p>
           </div>
-          <button className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-50 whitespace-nowrap">
+          <button onClick={handleUpgrade} className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-50 whitespace-nowrap">
             Upgrade Now
           </button>
         </div>
