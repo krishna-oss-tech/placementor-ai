@@ -1,37 +1,23 @@
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const { message, company } = await request.json();
+    const body = await req.json();
+    const message = body.message;
+    const company = body.company;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    const prompt = `You are a senior interviewer at ${company}. Interview a final year B.E. student for software engineer role.
+    const prompt = "You are a senior interviewer at " + company + ". Interview a final year B.E. student. Always respond in this exact format:\nSCORE: X/10\nFEEDBACK: feedback here\nNEXT QUESTION: question here\n\nStudent answer: " + message;
 
-ALWAYS respond in EXACTLY this format:
-SCORE: X/10
-FEEDBACK: your feedback here in 2-3 lines
-NEXT QUESTION: your next question here
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
 
-Student answer: ${message}`;
+    const data = await response.json();
+    const text = data.candidates[0].content.parts[0].text;
+    return Response.json({ reply: text.replace(/\*\*/g, "") });
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
-        })
-      }
-    );
-
-    const raw = await res.json();
-    console.log("COMPANY API RAW:", JSON.stringify(raw));
-    const text = raw?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text;
-    if (!text) return Response.json({ reply: "Error: No response from AI" });
-    return Response.json({ reply: text.replace(/\*\*/g, '') });
-
-  } catch (error) {
-    console.error("COMPANY ERROR:", error.message);
-    return Response.json({ reply: "Error: " + error.message });
+  } catch (err) {
+    return Response.json({ reply: "Error: " + err.message });
   }
 }
