@@ -14,6 +14,12 @@ export async function POST(req) {
     });
 
     const data = await response.json();
+    console.log("RAW RESPONSE:", JSON.stringify(data));
+    
+    if (!data.candidates || !data.candidates[0]) {
+      return Response.json({ reply: "API Error: " + JSON.stringify(data) });
+    }
+    
     const text = data.candidates[0].content.parts[0].text;
     return Response.json({ reply: text.replace(/\*\*/g, "") });
 
