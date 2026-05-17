@@ -9,22 +9,15 @@ export async function POST(request) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `You are a senior interviewer at ${company}. Interview a final year B.E. student for software engineer role.\n\nIMPORTANT: Always respond in EXACTLY this format:\nSCORE: X/10\nFEEDBACK: your feedback here in 2-3 lines\nNEXT QUESTION: your next question here\n\nStudent answer: ${message}` }] }],
-          generationConfig: { temperature: 0.2 }
+          contents: [{ parts: [{ text: `You are a senior interviewer at ${company}. Interview a final year B.E. student for software engineer role. ALWAYS respond in EXACTLY this format:\nSCORE: X/10\nFEEDBACK: your feedback here\nNEXT QUESTION: your next question here\n\nStudent answer: ${message}` }] }]
         })
       }
     );
-
     const raw = await res.json();
-    console.log("RAW:", JSON.stringify(raw));
-
     const text = raw?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text;
-    if (!text) return Response.json({ error: "No text in response" }, { status: 500 });
-
-    const reply = text.trim();
-    return Response.json({ reply });
+    if (!text) return Response.json({ reply: "Error getting response" });
+    return Response.json({ reply: text.replace(/\*\*/g, '') });
   } catch (error) {
-    console.error('COMPANY API ERROR:', error?.message || error);
-    return Response.json({ error: error?.message || String(error) }, { status: 500 });
+    return Response.json({ reply: "Error: " + error.message });
   }
 }
