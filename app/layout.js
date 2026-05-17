@@ -16,6 +16,7 @@ export const metadata = {
   title: 'PlaceMentor AI - #1 AI Placement Prep for Engineering Students',
   description: 'Practice AI mock interviews, get resume ATS score, prepare for TCS, Infosys, Wipro placements. Free for engineering students in India.',
   keywords: 'placement preparation, mock interview, resume analyzer, TCS interview, Infosys interview, engineering placement, AI interview practice, campus placement India',
+  themeColor: '#4f46e5',
   openGraph: {
     title: 'PlaceMentor AI - Crack Your Placement with AI',
     description: 'AI-powered placement prep for Indian engineering students. Mock interviews, resume review, company-specific prep.',
@@ -35,6 +36,11 @@ export const metadata = {
   verification: {
     google: 'pCt-f16dD9W87lALlDl_K9v5WOcPjBwzw5xFyK5kqe0',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {
