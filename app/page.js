@@ -63,7 +63,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-2 lg:items-center">
           <div className="max-w-xl">
             <span className="inline-flex items-center rounded-full bg-indigo-50 px-4 py-1 text-sm font-semibold text-indigo-700 mb-6">
-              Stop Guessing. Start Cracking Placements.
+              Join early access — free for engineering students
             </span>
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
               AI-powered prep for real placement success.
@@ -79,23 +79,7 @@ export default function Home() {
                 See Features <ArrowUpRight size={18} />
               </a>
             </div>
-            <div className="mt-10 rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
-              <p className="text-sm uppercase tracking-[0.25em] text-indigo-700">Trusted by students</p>
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <div className="rounded-2xl bg-white p-4 text-left shadow-sm">
-                  <p className="text-2xl font-bold text-gray-900">500+</p>
-                  <p className="text-sm text-gray-500">students preparing</p>
-                </div>
-                <div className="rounded-2xl bg-white p-4 text-left shadow-sm">
-                  <p className="text-2xl font-bold text-gray-900">4.8/5</p>
-                  <p className="text-sm text-gray-500">average rating</p>
-                </div>
-                <div className="rounded-2xl bg-white p-4 text-left shadow-sm">
-                  <p className="text-2xl font-bold text-gray-900">10,000+</p>
-                  <p className="text-sm text-gray-500">interviews conducted</p>
-                </div>
-              </div>
-            </div>
+
           </div>
 
           <div className="relative">
@@ -165,22 +149,10 @@ export default function Home() {
       </section>
 
       <section id="testimonials" className="py-20 px-6">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">Testimonials</p>
-            <h2 className="mt-4 text-3xl font-bold text-gray-900">Real results from students like you.</h2>
-          </div>
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.name} className="rounded-3xl border border-gray-200 bg-white p-7 shadow-sm">
-                <p className="text-gray-700 leading-7">"{testimonial.quote}"</p>
-                <div className="mt-6 border-t border-gray-100 pt-5">
-                  <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                  <p className="text-sm text-gray-500">{testimonial.college} • placed at {testimonial.company}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="mx-auto max-w-6xl text-center">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+            Be among the first to try PlaceMentor AI — and share your experience!
+          </h2>
         </div>
       </section>
 
@@ -224,7 +196,7 @@ export default function Home() {
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-200">Ready to start?</p>
-              <h2 className="mt-4 text-4xl font-bold">Join 500+ students already preparing.</h2>
+              <h2 className="mt-4 text-4xl font-bold">Start preparing today.</h2>
               <p className="mt-6 max-w-xl text-lg leading-8 text-indigo-100">Get instant access to AI-powered placement practice, realistic interview scenarios, and resume guidance that helps you perform better, faster.</p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
