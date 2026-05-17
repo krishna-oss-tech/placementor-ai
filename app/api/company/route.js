@@ -7,7 +7,7 @@ export async function POST(req) {
 
     const prompt = "You are a senior interviewer at " + company + ". Interview a final year B.E. student. Always respond in this exact format:\nSCORE: X/10\nFEEDBACK: feedback here\nNEXT QUESTION: question here\n\nStudent answer: " + message;
 
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey, {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + apiKey, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
