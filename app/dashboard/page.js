@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
+  const [userPlan, setUserPlan] = useState('free');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const router = useRouter();
 
@@ -38,6 +39,28 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    let canceled = false;
+
+    const fetchUserPlan = async () => {
+      try {
+        const { db } = await import('../lib/firebase');
+        const { doc, getDoc } = await import('firebase/firestore');
+        const snapshot = await getDoc(doc(db, 'users', user.uid));
+        if (!canceled) {
+          setUserPlan(snapshot.exists() ? snapshot.data()?.plan || 'free' : 'free');
+        }
+      } catch (err) {
+        console.error('Plan fetch error:', err);
+        if (!canceled) setUserPlan('free');
+      }
+    };
+
+    fetchUserPlan();
+    return () => { canceled = true; };
+  }, [user]);
+
   const handleUpgrade = async () => {
     const res = await fetch('/api/payment', {
       method: 'POST',
@@ -53,8 +76,26 @@ export default function Dashboard() {
       name: 'PlaceMentor AI',
       description: 'Pro Plan - Monthly',
       order_id: data.orderId,
-      handler: function(response) {
-        alert('Payment Successful! Welcome to Pro!');
+      handler: async function(response) {
+        try {
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            const { db } = await import('../lib/firebase');
+            const { doc, setDoc } = await import('firebase/firestore');
+            await setDoc(doc(db, 'users', currentUser.uid), {
+              plan: 'pro',
+              email: currentUser.email,
+              name: currentUser.displayName,
+              upgradedAt: new Date().toISOString(),
+              paymentId: response.razorpay_payment_id
+            }, { merge: true });
+            alert('🎉 Welcome to Pro! All features unlocked!');
+            window.location.reload();
+          }
+        } catch (err) {
+          console.error('Payment save error:', err);
+          alert('Payment successful! Please refresh the page.');
+        }
       },
       prefill: {
         name: user?.displayName || '',
@@ -70,6 +111,11 @@ export default function Dashboard() {
   const handleMaybeLater = () => {
     setShowUpgradeModal(false);
   };
+
+  const effectiveFeatures = features.map((feature) => ({
+    ...feature,
+    free: userPlan === 'pro' ? true : feature.free
+  }));
 
   const handleFeatureClick = (feature) => {
     if (feature.free) {
@@ -96,10 +142,9 @@ export default function Dashboard() {
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center">
         <span className="text-xl font-bold text-indigo-600">PlaceMentor AI</span>
         <div className="bg-indigo-50 text-indigo-600 text-sm px-4 py-1 rounded-full">
-          Free Plan
+          {userPlan === 'pro' ? 'Pro Plan' : 'Free Plan'}
         </div>
       </div>
-
       {/* Welcome */}
       <div className="max-w-4xl mx-auto px-6 pt-10 pb-4">
         <h1 className="text-2xl font-bold mb-1">
@@ -128,7 +173,7 @@ export default function Dashboard() {
       <div className="max-w-4xl mx-auto px-6">
         <h2 className="font-semibold text-lg mb-4">What do you want to practice?</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {features.map((f, i) => (
+          {effectiveFeatures.map((f, i) => (
             <button
               key={i}
               type="button"
