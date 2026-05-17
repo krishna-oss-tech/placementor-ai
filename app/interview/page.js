@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { ArrowLeft, Send, Loader } from 'lucide-react';
+import { auth } from '../lib/firebase';
 
 // 🧠 WHY: useState hook se hum component ke andar data store karte hain.
 // Jab state change hoti hai — UI automatically update ho jaata hai.
@@ -34,9 +35,13 @@ export default function Interview() {
     // Direct Gemini API frontend se call nahi karte — API key expose ho jaati.
     // Backend route pe bhejte hain — woh securely Gemini se baat karta hai.
     try {
+      const currentUser = auth.currentUser;
       const res = await fetch('/api/interview', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': currentUser?.uid || 'anonymous'
+        },
         body: JSON.stringify({ message: userMessage, interviewType }),
       });
       const data = await res.json();
