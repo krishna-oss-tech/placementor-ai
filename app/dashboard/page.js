@@ -4,14 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Brain, FileText, Building2, TrendingUp, Lock, Zap } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
-const features = [
-  { icon: <Brain size={24} />, title: "AI Mock Interview", desc: "Practice HR, Technical & Aptitude rounds", href: "/interview", free: true },
-  { icon: <FileText size={24} />, title: "Resume Analyzer", desc: "Get ATS score & instant fixes", href: "/resume", free: false },
-  { icon: <Building2 size={24} />, title: "Company Prep", desc: "TCS, Infosys, Wipro & more", href: "/company", free: true },
-  { icon: <Zap size={24} />, title: "Aptitude Quiz", desc: "Quantitative, Verbal, Logical & Coding tests", href: "/aptitude", free: true },
-  { icon: <TrendingUp size={24} />, title: "Progress Tracker", desc: "Track your improvement daily", href: "/progress", free: true },
-];
+// features array is defined inside the component so it can use userPlan state
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -22,7 +18,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
         router.push('/login');
       } else {
@@ -32,34 +28,17 @@ export default function Dashboard() {
         const honorifics = ['Mr', 'Ms', 'Mrs', 'Dr', 'Miss', 'Prof'];
         const first = parts.length > 1 && honorifics.includes(parts[0]) ? parts[1] : parts[0] || 'there';
         setFirstName(first);
+
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists() && userDoc.data().plan === 'pro') {
+          setUserPlan('pro');
+        }
       }
       setAuthLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    let canceled = false;
-
-    const fetchUserPlan = async () => {
-      try {
-        const { db } = await import('../lib/firebase');
-        const { doc, getDoc } = await import('firebase/firestore');
-        const snapshot = await getDoc(doc(db, 'users', user.uid));
-        if (!canceled) {
-          setUserPlan(snapshot.exists() ? snapshot.data()?.plan || 'free' : 'free');
-        }
-      } catch (err) {
-        console.error('Plan fetch error:', err);
-        if (!canceled) setUserPlan('free');
-      }
-    };
-
-    fetchUserPlan();
-    return () => { canceled = true; };
-  }, [user]);
 
   const handleUpgrade = async () => {
     const res = await fetch('/api/payment', {
@@ -79,9 +58,7 @@ export default function Dashboard() {
       handler: async function(response) {
         try {
           const currentUser = auth.currentUser;
-          if (currentUser) {
-            const { db } = await import('../lib/firebase');
-            const { doc, setDoc } = await import('firebase/firestore');
+          if(currentUser) {
             await setDoc(doc(db, 'users', currentUser.uid), {
               plan: 'pro',
               email: currentUser.email,
@@ -89,12 +66,12 @@ export default function Dashboard() {
               upgradedAt: new Date().toISOString(),
               paymentId: response.razorpay_payment_id
             }, { merge: true });
-            alert('🎉 Welcome to Pro! All features unlocked!');
+            setUserPlan('pro');
+            alert('Welcome to Pro! All features unlocked!');
             window.location.reload();
           }
-        } catch (err) {
-          console.error('Payment save error:', err);
-          alert('Payment successful! Please refresh the page.');
+        } catch(err) {
+          alert('Payment successful! Please refresh.');
         }
       },
       prefill: {
@@ -112,13 +89,16 @@ export default function Dashboard() {
     setShowUpgradeModal(false);
   };
 
-  const effectiveFeatures = features.map((feature) => ({
-    ...feature,
-    free: userPlan === 'pro' ? true : feature.free
-  }));
+  const features = [
+    { icon: <Brain size={24} />, title: "AI Mock Interview", desc: "Practice HR, Technical & Aptitude rounds", href: "/interview", locked: false },
+    { icon: <FileText size={24} />, title: "Resume Analyzer", desc: "Get ATS score & instant fixes", href: "/resume", locked: userPlan !== 'pro' },
+    { icon: <Building2 size={24} />, title: "Company Prep", desc: "TCS, Infosys, Wipro & more", href: "/company", locked: userPlan !== 'pro' },
+    { icon: <Zap size={24} />, title: "Aptitude Quiz", desc: "Quantitative, Verbal, Logical & Coding tests", href: "/aptitude", locked: false },
+    { icon: <TrendingUp size={24} />, title: "Progress Tracker", desc: "Track your improvement daily", href: "/progress", locked: false },
+  ];
 
   const handleFeatureClick = (feature) => {
-    if (feature.free) {
+    if (!feature.locked) {
       router.push(feature.href);
     } else {
       setShowUpgradeModal(true);
@@ -173,7 +153,7 @@ export default function Dashboard() {
       <div className="max-w-4xl mx-auto px-6">
         <h2 className="font-semibold text-lg mb-4">What do you want to practice?</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {effectiveFeatures.map((f, i) => (
+          {features.map((f, i) => (
             <button
               key={i}
               type="button"
@@ -184,7 +164,7 @@ export default function Dashboard() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold">{f.title}</h3>
-                  {!f.free && <span className="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1"><Lock size={10} /> Pro</span>}
+                  {f.locked && <span className="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1"><Lock size={10} /> Pro</span>}
                 </div>
                 <p className="text-gray-500 text-sm">{f.desc}</p>
               </div>
