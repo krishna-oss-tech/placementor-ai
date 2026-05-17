@@ -220,6 +220,7 @@ export default function Home() {
           <div className="flex gap-6 text-sm text-gray-400">
             <a href="/terms" className="hover:text-gray-600">Terms of Service</a>
             <a href="/privacy" className="hover:text-gray-600">Privacy Policy</a>
+            <a href="/support" className="hover:text-gray-600">Support</a>
             <a href="mailto:support@placementorai.in" className="hover:text-gray-600">Contact</a>
           </div>
         </div>
