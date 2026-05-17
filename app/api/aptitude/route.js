@@ -25,7 +25,8 @@ Each object must have exactly these fields:
 correct is the index 0,1,2 or 3 of the correct option in the options array.
 Make sure options array always has exactly 4 strings with actual text content.`
         }],
-        max_tokens: 1000
+        max_tokens: 2000,
+        temperature: 0.3
       })
     });
 
