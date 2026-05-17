@@ -1,41 +1,75 @@
 'use client';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-const stats = [
-  { label: 'Total Interviews', value: '24' },
-  { label: 'Average Score', value: '82%' },
-  { label: 'Current Streak', value: '5 days' },
-  { label: 'Best Score', value: '95%' },
-];
-
-const weeklyActivity = [
-  { day: 'Mon', count: 2 },
-  { day: 'Tue', count: 1 },
-  { day: 'Wed', count: 3 },
-  { day: 'Thu', count: 2 },
-  { day: 'Fri', count: 4 },
-  { day: 'Sat', count: 1 },
-  { day: 'Sun', count: 1 },
-];
-
-const recentActivity = [
-  { date: 'May 16', type: 'Technical', score: '88%' },
-  { date: 'May 15', type: 'HR', score: '79%' },
-  { date: 'May 14', type: 'Aptitude', score: '84%' },
-  { date: 'May 13', type: 'Communication', score: '91%' },
-  { date: 'May 12', type: 'Technical', score: '85%' },
-];
-
-const skills = [
-  { name: 'HR', level: 78 },
-  { name: 'Technical', level: 84 },
-  { name: 'Aptitude', level: 72 },
-  { name: 'Communication', level: 88 },
-];
-
-const motivationalMessage = 'You are making strong progress! Keep practicing consistently and aim for one more interview session this week to stay on track.';
+import { auth } from '../lib/firebase';
+import { db } from '../lib/firebase';
+import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ProgressPage() {
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        router.push('/login');
+        return;
+      }
+      setUser(currentUser);
+
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        setUserData(userDoc.data());
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-indigo-600 text-lg font-medium">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const stats = [
+    { label: 'Total Interviews', value: userData?.totalInterviews || 0 },
+    { label: 'Average Score', value: userData?.avgScore ? `${userData.avgScore}%` : '-- %' },
+    { label: 'Current Streak', value: userData?.streak ? `${userData.streak} days` : '0 days' },
+    { label: 'Best Score', value: userData?.bestScore ? `${userData.bestScore}%` : '-- %' },
+  ];
+
+  const weeklyActivity = userData?.weeklyActivity || [
+    { day: 'Mon', count: 0 },
+    { day: 'Tue', count: 0 },
+    { day: 'Wed', count: 0 },
+    { day: 'Thu', count: 0 },
+    { day: 'Fri', count: 0 },
+    { day: 'Sat', count: 0 },
+    { day: 'Sun', count: 0 },
+  ];
+
+  const recentActivity = userData?.recentActivity || [];
+
+  const skills = userData?.skills || [
+    { name: 'HR', level: 0 },
+    { name: 'Technical', level: 0 },
+    { name: 'Aptitude', level: 0 },
+    { name: 'Communication', level: 0 },
+  ];
+
+  const motivationalMessage = userData?.totalInterviews > 0
+    ? 'You are making strong progress! Keep practicing consistently and aim for one more interview session this week to stay on track.'
+    : 'Start your first interview to begin tracking your progress. Consistency is the key to cracking placements!';
+
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -44,9 +78,14 @@ export default function ProgressPage() {
             <span className="text-lg">←</span>
             Back to dashboard
           </Link>
-          <div>
-            <p className="text-sm text-gray-500">Progress overview</p>
-            <h1 className="text-2xl font-semibold text-gray-900">Your placement journey</h1>
+          <div className="flex items-center gap-4">
+            <div className="bg-indigo-50 text-indigo-600 text-sm px-4 py-1 rounded-full">
+              {userData?.plan === 'pro' ? 'Pro Plan' : 'Free Plan'}
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Progress overview</p>
+              <h1 className="text-2xl font-semibold text-gray-900">Your placement journey</h1>
+            </div>
           </div>
         </div>
 
@@ -94,15 +133,22 @@ export default function ProgressPage() {
               <span className="text-sm text-gray-500">Updated today</span>
             </div>
             <div className="mt-6 space-y-4">
-              {recentActivity.map((item) => (
-                <div key={item.date + item.type} className="flex items-center justify-between rounded-3xl border border-gray-100 bg-gray-50 p-4">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{item.type}</p>
-                    <p className="text-sm text-gray-500">{item.date}</p>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between rounded-3xl border border-gray-100 bg-gray-50 p-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{item.type}</p>
+                      <p className="text-sm text-gray-500">{item.date}</p>
+                    </div>
+                    <div className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">{item.score}</div>
                   </div>
-                  <div className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">{item.score}</div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                  <p className="text-lg">No interviews yet</p>
+                  <p className="text-sm mt-1">Complete your first interview to see activity here</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
