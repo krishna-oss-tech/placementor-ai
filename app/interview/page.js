@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { ArrowLeft, Send, Loader } from 'lucide-react';
 import { auth } from '../lib/firebase';
+import { db } from '../lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 // 🧠 WHY: useState hook se hum component ke andar data store karte hain.
 // Jab state change hoti hai — UI automatically update ho jaata hai.
@@ -23,8 +25,39 @@ export default function Interview() {
     ]);
   };
 
+  async function checkAndUpdateLimit() {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return true;
+
+    const userRef = doc(db, 'users', currentUser.uid);
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.exists() ? userDoc.data() : {};
+
+    if (userData.plan === 'pro') return true;
+
+    const today = new Date().toDateString();
+    const dailyCount = userData.dailyCount || 0;
+    const lastDate = userData.lastDate || '';
+
+    if (lastDate !== today) {
+      await setDoc(userRef, { dailyCount: 1, lastDate: today }, { merge: true });
+      return true;
+    }
+
+    if (dailyCount >= 3) {
+      alert('Daily limit reached! Upgrade to Pro for unlimited interviews.');
+      return false;
+    }
+
+    await setDoc(userRef, { dailyCount: dailyCount + 1 }, { merge: true });
+    return true;
+  }
+
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
+
+    const allowed = await checkAndUpdateLimit();
+    if (!allowed) return;
 
     const userMessage = input.trim();
     setInput('');
