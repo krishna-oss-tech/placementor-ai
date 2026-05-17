@@ -16,26 +16,24 @@ const features = [
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        setIsLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
         router.push('/login');
-        return;
+      } else {
+        setUser(currentUser);
+        const name = currentUser.displayName || currentUser.email || '';
+        const first = name.split(' ')[0] || 'there';
+        setFirstName(first);
       }
-
-      setUser(user);
-      const name = user.displayName || user.email || '';
-      const first = name.split(' ')[0] || 'there';
-      setFirstName(first);
-      setIsLoading(false);
+      setAuthLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   const handleUpgrade = async () => {
     const res = await fetch('/api/payment', {
@@ -66,16 +64,15 @@ export default function Dashboard() {
     rzp.open();
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
-      <main className="min-h-screen bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-16 w-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-          <p className="text-indigo-600 text-lg font-medium">Loading...</p>
-        </div>
-      </main>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-indigo-600 text-lg font-medium">Loading...</div>
+      </div>
     );
   }
+
+  if (!user) return null;
 
   return (
     <main className="min-h-screen bg-gray-50">
