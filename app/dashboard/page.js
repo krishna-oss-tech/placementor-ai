@@ -25,8 +25,10 @@ export default function Dashboard() {
         router.push('/login');
       } else {
         setUser(currentUser);
-        const name = currentUser.displayName || currentUser.email || '';
-        const first = name.split(' ')[0] || 'there';
+        const rawName = currentUser.displayName || currentUser.email || '';
+        const parts = rawName.split(' ').filter(Boolean);
+        const honorifics = ['Mr', 'Ms', 'Mrs', 'Dr', 'Miss', 'Prof'];
+        const first = parts.length > 1 && honorifics.includes(parts[0]) ? parts[1] : parts[0] || 'there';
         setFirstName(first);
       }
       setAuthLoading(false);
