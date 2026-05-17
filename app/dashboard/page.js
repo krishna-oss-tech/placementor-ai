@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -64,6 +65,18 @@ export default function Dashboard() {
 
     const rzp = new window.Razorpay(options);
     rzp.open();
+  };
+
+  const handleMaybeLater = () => {
+    setShowUpgradeModal(false);
+  };
+
+  const handleFeatureClick = (feature) => {
+    if (feature.free) {
+      router.push(feature.href);
+    } else {
+      setShowUpgradeModal(true);
+    }
   };
 
   if (authLoading) {
@@ -116,7 +129,12 @@ export default function Dashboard() {
         <h2 className="font-semibold text-lg mb-4">What do you want to practice?</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {features.map((f, i) => (
-            <a key={i} href={f.free ? f.href : '#'} className="bg-white rounded-2xl border border-gray-100 p-6 hover:border-indigo-200 hover:shadow-sm transition-all flex items-start gap-4">
+            <button
+              key={i}
+              type="button"
+              onClick={() => handleFeatureClick(f)}
+              className="text-left bg-white rounded-2xl border border-gray-100 p-6 hover:border-indigo-200 hover:shadow-sm transition-all flex items-start gap-4"
+            >
               <div className="text-indigo-600 mt-1">{f.icon}</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
@@ -125,7 +143,7 @@ export default function Dashboard() {
                 </div>
                 <p className="text-gray-500 text-sm">{f.desc}</p>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       </div>
@@ -142,6 +160,38 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-black/10">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-50 text-indigo-600">
+              <Lock size={28} />
+            </div>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900">This is a Pro Feature</h2>
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                Upgrade to Pro for ₹199/month to unlock Resume Analyzer, Company Prep and more
+              </p>
+            </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={handleUpgrade}
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 sm:w-auto"
+              >
+                Upgrade Now
+              </button>
+              <button
+                type="button"
+                onClick={handleMaybeLater}
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:w-auto"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </main>
   );
