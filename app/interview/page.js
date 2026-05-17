@@ -16,6 +16,7 @@ export default function Interview() {
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
   const [interviewType, setInterviewType] = useState('');
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const selectType = (type) => {
     setInterviewType(type);
@@ -45,7 +46,7 @@ export default function Interview() {
     }
 
     if (dailyCount >= 3) {
-      alert('Daily limit reached! Upgrade to Pro for unlimited interviews.');
+      setShowLimitModal(true);
       return false;
     }
 
@@ -171,6 +172,28 @@ export default function Interview() {
             </div>
           </div>
         </>
+      )}
+      {showLimitModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 text-center shadow-xl">
+            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">⏰</span>
+            </div>
+            <h2 className="text-xl font-bold mb-2">Daily Limit Reached!</h2>
+            <p className="text-gray-500 text-sm mb-6">You've used all 3 free interviews for today. Upgrade to Pro for unlimited practice!</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={() => { setShowLimitModal(false); window.location.href='/dashboard'; }}
+                className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700">
+                Upgrade to Pro — ₹199/month
+              </button>
+              <button onClick={() => setShowLimitModal(false)}
+                className="w-full border border-gray-200 py-3 rounded-xl text-gray-600 hover:bg-gray-50">
+                Come back tomorrow
+              </button>
+            </div>
+            <p className="text-gray-400 text-xs mt-4">Resets every day at midnight</p>
+          </div>
+        </div>
       )}
     </main>
   );

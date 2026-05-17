@@ -55,10 +55,10 @@ export default function Dashboard() {
       name: 'PlaceMentor AI',
       description: 'Pro Plan - Monthly',
       order_id: data.orderId,
-      handler: async function(response) {
+      handler: async function (response) {
         try {
           const currentUser = auth.currentUser;
-          if(currentUser) {
+          if (currentUser) {
             await setDoc(doc(db, 'users', currentUser.uid), {
               plan: 'pro',
               email: currentUser.email,
@@ -70,7 +70,7 @@ export default function Dashboard() {
             alert('Welcome to Pro! All features unlocked!');
             window.location.reload();
           }
-        } catch(err) {
+        } catch (err) {
           alert('Payment successful! Please refresh.');
         }
       },
