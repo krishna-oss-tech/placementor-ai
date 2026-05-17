@@ -1,26 +1,36 @@
 export async function POST(request) {
   try {
     const { topic, difficulty } = await request.json();
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Generate exactly 5 multiple choice aptitude questions for topic: ${topic}, difficulty: ${difficulty}.\nReturn ONLY a raw JSON array with no markdown, no backticks, no explanation.\nEach object must have exactly these fields:\n{\n  "question": "the question text",\n  "options": ["option A text", "option B text", "option C text", "option D text"],\n  "correct": 0,\n  "explanation": "why this answer is correct"\n}\ncorrect is the index 0,1,2 or 3 of the correct option in the options array.\nMake sure options array always has exactly 4 strings with actual text content.`
-            }]
-          }],
-          generationConfig: { temperature: 0.2 }
-        })
-      }
-    );
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{
+          role: 'user',
+          content: `Generate exactly 5 multiple choice aptitude questions for topic: ${topic}, difficulty: ${difficulty}.
+Return ONLY a raw JSON array with no markdown, no backticks, no explanation.
+Each object must have exactly these fields:
+{
+  "question": "the question text",
+  "options": ["option A text", "option B text", "option C text", "option D text"],
+  "correct": 0,
+  "explanation": "why this answer is correct"
+}
+correct is the index 0,1,2 or 3 of the correct option in the options array.
+Make sure options array always has exactly 4 strings with actual text content.`
+        }],
+        max_tokens: 1000
+      })
+    });
 
     const raw = await res.json();
-    const text = raw?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text;
+    const text = raw?.choices?.[0]?.message?.content;
     if (!text) return Response.json({ error: 'No response' }, { status: 500 });
 
     const clean = text.replace(/```json|```/g, '').trim();
