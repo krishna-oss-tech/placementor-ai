@@ -80,6 +80,27 @@ export default function Interview() {
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
+
+      const currentUserForStats = auth.currentUser;
+      if (currentUserForStats) {
+        const { db } = await import('../lib/firebase');
+        const { doc, getDoc, setDoc } = await import('firebase/firestore');
+        const userRef = doc(db, 'users', currentUserForStats.uid);
+        const userDoc = await getDoc(userRef);
+        const userData = userDoc.exists() ? userDoc.data() : {};
+
+        const today = new Date().toDateString();
+        const lastActive = userData.lastActive || '';
+        const streak = lastActive === today ? (userData.streak || 1) :
+                       lastActive === new Date(Date.now() - 86400000).toDateString() ?
+                       (userData.streak || 0) + 1 : 1;
+
+        await setDoc(userRef, {
+          totalInterviews: (userData.totalInterviews || 0) + 1,
+          streak: streak,
+          lastActive: today
+        }, { merge: true });
+      }
     } catch (err) {
       setMessages(prev => [...prev, { role: 'ai', text: "Something went wrong. Please try again." }]);
     }
