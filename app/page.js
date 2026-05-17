@@ -240,8 +240,17 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-200 bg-white py-8 text-center text-sm text-gray-500">
-        {'\u00A9'} 2025 PlaceMentor AI • Built for smart placement preparation.
+      <footer className="border-t border-gray-100 py-8 px-6">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-sm text-gray-400">
+            © 2026 PlaceMentor AI • Made with ❤️ for Indian Engineers
+          </div>
+          <div className="flex gap-6 text-sm text-gray-400">
+            <a href="/terms" className="hover:text-gray-600">Terms of Service</a>
+            <a href="/privacy" className="hover:text-gray-600">Privacy Policy</a>
+            <a href="mailto:support@placementorai.in" className="hover:text-gray-600">Contact</a>
+          </div>
+        </div>
       </footer>
     </main>
   );
