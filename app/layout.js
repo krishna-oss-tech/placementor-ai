@@ -13,8 +13,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "PlaceMentor AI - #1 AI Placement Prep for Engineering Students",
-  description: "Practice mock interviews, analyze your resume and prepare for TCS, Infosys, Wipro with AI. Free for engineering students.",
+  title: 'PlaceMentor AI - #1 AI Placement Prep for Engineering Students',
+  description: 'Practice AI mock interviews, get resume ATS score, prepare for TCS, Infosys, Wipro placements. Free for engineering students in India.',
+  keywords: 'placement preparation, mock interview, resume analyzer, TCS interview, Infosys interview, engineering placement, AI interview practice, campus placement India',
+  openGraph: {
+    title: 'PlaceMentor AI - Crack Your Placement with AI',
+    description: 'AI-powered placement prep for Indian engineering students. Mock interviews, resume review, company-specific prep.',
+    url: 'https://placementor-ai.vercel.app',
+    siteName: 'PlaceMentor AI',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PlaceMentor AI - AI Placement Prep',
+    description: 'Practice mock interviews and crack your placement with AI.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
 };
 
 export default function RootLayout({ children }) {
