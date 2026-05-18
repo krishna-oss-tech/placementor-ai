@@ -18,11 +18,6 @@ export default function Home() {
     { step: '3', title: 'Crack Placements', desc: 'Build confidence, improve scores and interview with clarity.' },
   ];
 
-  const testimonials = [
-    { quote: 'PlaceMentor AI made my preparation simple and focused. I cleared the TCS interview in just 3 weeks!', name: 'Ananya Sharma', college: 'NIT Calicut', company: 'TCS' },
-    { quote: 'The resume feedback and mock interviews helped me stand out during the Infosys process.', name: 'Ritik Patel', college: 'VNIT Nagpur', company: 'Infosys' },
-    { quote: 'I am more confident now and my communication improved a lot before my Wipro interview.', name: 'Sneha Iyer', college: 'VIT Vellore', company: 'Wipro' },
-  ];
 
   const pricing = [
     { name: 'Free', price: '\u20B90', period: 'Forever', features: ['3 mock interviews/day', 'Basic quizzes', 'Resume score'], highlight: false },

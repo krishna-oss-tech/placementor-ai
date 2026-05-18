@@ -18,12 +18,45 @@ export default function Interview() {
   const [interviewType, setInterviewType] = useState('');
   const [showLimitModal, setShowLimitModal] = useState(false);
 
-  const selectType = (type) => {
+  const selectType = async (type) => {
+    const allowed = await checkAndUpdateLimit();
+    if (!allowed) return;
+
     setInterviewType(type);
     setStarted(true);
     setMessages([
       { role: 'ai', text: `Great! Let's start your ${type} interview. I'll ask you questions one by one and give feedback after each answer. Ready? Here's your first question:\n\nTell me about yourself.` }
     ]);
+
+    const currentUserForStats = auth.currentUser;
+    if (currentUserForStats) {
+      const { db } = await import('../lib/firebase');
+      const { doc, getDoc, setDoc } = await import('firebase/firestore');
+      const userRef = doc(db, 'users', currentUserForStats.uid);
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.exists() ? userDoc.data() : {};
+
+      const today = new Date().toDateString();
+      const lastActive = userData.lastActive || '';
+      const streak = lastActive === today ? (userData.streak || 1) :
+                     lastActive === new Date(Date.now() - 86400000).toDateString() ?
+                     (userData.streak || 0) + 1 : 1;
+
+      const recentActivity = userData.recentActivity || [];
+      recentActivity.unshift({
+        type: type,
+        date: new Date().toLocaleDateString(),
+        score: 'N/A'
+      });
+      if (recentActivity.length > 5) recentActivity.pop();
+
+      await setDoc(userRef, {
+        totalInterviews: (userData.totalInterviews || 0) + 1,
+        streak: streak,
+        lastActive: today,
+        recentActivity: recentActivity
+      }, { merge: true });
+    }
   };
 
   async function checkAndUpdateLimit() {
@@ -57,17 +90,11 @@ export default function Interview() {
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
-    const allowed = await checkAndUpdateLimit();
-    if (!allowed) return;
-
     const userMessage = input.trim();
     setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
     setLoading(true);
 
-    // 🧠 WHY: Hum yahan API route ko call kar rahe hain (/api/interview).
-    // Direct Gemini API frontend se call nahi karte — API key expose ho jaati.
-    // Backend route pe bhejte hain — woh securely Gemini se baat karta hai.
     try {
       const currentUser = auth.currentUser;
       const res = await fetch('/api/interview', {
@@ -80,27 +107,6 @@ export default function Interview() {
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-
-      const currentUserForStats = auth.currentUser;
-      if (currentUserForStats) {
-        const { db } = await import('../lib/firebase');
-        const { doc, getDoc, setDoc } = await import('firebase/firestore');
-        const userRef = doc(db, 'users', currentUserForStats.uid);
-        const userDoc = await getDoc(userRef);
-        const userData = userDoc.exists() ? userDoc.data() : {};
-
-        const today = new Date().toDateString();
-        const lastActive = userData.lastActive || '';
-        const streak = lastActive === today ? (userData.streak || 1) :
-                       lastActive === new Date(Date.now() - 86400000).toDateString() ?
-                       (userData.streak || 0) + 1 : 1;
-
-        await setDoc(userRef, {
-          totalInterviews: (userData.totalInterviews || 0) + 1,
-          streak: streak,
-          lastActive: today
-        }, { merge: true });
-      }
     } catch (err) {
       setMessages(prev => [...prev, { role: 'ai', text: "Something went wrong. Please try again." }]);
     }

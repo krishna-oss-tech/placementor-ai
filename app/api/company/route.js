@@ -24,13 +24,13 @@ export async function POST(req) {
     console.log("RAW RESPONSE:", JSON.stringify(data));
     
     if (!data.choices || !data.choices[0]) {
-      return Response.json({ reply: "API Error: " + JSON.stringify(data) });
+      return Response.json({ reply: "API Error: " + JSON.stringify(data) }, { status: 502 });
     }
     
     const text = data.choices[0].message.content;
     return Response.json({ reply: text.replace(/\*\*/g, "") });
 
   } catch (err) {
-    return Response.json({ reply: "Error: " + err.message });
+    return Response.json({ reply: "Error: " + err.message }, { status: 500 });
   }
 }
