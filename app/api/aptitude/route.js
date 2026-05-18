@@ -34,8 +34,28 @@ Make sure options array always has exactly 4 strings with actual text content.`
     const text = raw?.choices?.[0]?.message?.content;
     if (!text) return Response.json({ error: 'No response' }, { status: 500 });
 
-    const clean = text.replace(/```json|```/g, '').trim();
-    const questions = JSON.parse(clean);
+    let clean = text.replace(/```json|```/g, '').trim();
+    
+    // Find first [ and last ] to extract array
+    const firstBracket = clean.indexOf('[');
+    const lastBracket = clean.lastIndexOf(']');
+    
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      clean = clean.substring(firstBracket, lastBracket + 1);
+    }
+    
+    // Fix common trailing comma issues in LLM JSON
+    clean = clean.replace(/,\s*]/g, ']');
+    clean = clean.replace(/,\s*}/g, '}');
+
+    let questions;
+    try {
+      questions = JSON.parse(clean);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, '\\nRaw string:', clean);
+      return Response.json({ error: 'AI generated invalid data. Please try again.' }, { status: 500 });
+    }
+
     return Response.json(questions);
   } catch (error) {
     console.error('APTITUDE API ERROR:', error?.message || error);

@@ -16,6 +16,8 @@ export default function Interview() {
   const [interviewType, setInterviewType] = useState('');
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [sessionTime, setSessionTime] = useState(0);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -29,6 +31,45 @@ export default function Interview() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Please use Chrome.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-IN';
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+        setInput(prev => prev + (prev ? ' ' : '') + finalTranscript);
+      }
+    };
+    
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    
+    recognition.start();
+  };
 
   const selectType = async (type) => {
     const allowed = await checkAndUpdateLimit();
@@ -171,7 +212,7 @@ export default function Interview() {
               {interviewType}
             </div>
           )}
-          <button className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          <button onClick={() => alert("Settings panel coming soon! Adjust AI difficulty, voice pitch, and language here.")} className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
             <Settings2 size={18} />
           </button>
         </div>
@@ -316,8 +357,11 @@ export default function Interview() {
             <div className="bg-[#0B0F19] border-t border-slate-800/50 p-6 pt-4 backdrop-blur-xl">
               <div className="max-w-3xl mx-auto">
                 <div className="relative flex items-end gap-2 bg-slate-900 border border-slate-700 focus-within:border-indigo-500/50 rounded-2xl p-2 transition-colors shadow-lg">
-                  <button className="p-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors">
-                    <Mic size={20} />
+                  <button 
+                    onClick={toggleListening}
+                    className={`p-3 rounded-xl transition-colors ${isListening ? 'text-rose-400 bg-rose-500/10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                  >
+                    {isListening ? <StopCircle size={20} className="animate-pulse" /> : <Mic size={20} />}
                   </button>
                   <textarea
                     value={input}
