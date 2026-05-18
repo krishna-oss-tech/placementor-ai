@@ -15,7 +15,8 @@ export default function Login() {
       await signInWithPopup(auth, provider);
       router.push('/dashboard');
     } catch (err) {
-      alert('Login failed. Try again.');
+      console.error(err);
+      alert('Login failed: ' + err.message);
     }
     setLoading(false);
   };
