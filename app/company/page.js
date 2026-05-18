@@ -121,37 +121,7 @@ export default function CompanyPage() {
 
   if (!user) return null;
 
-  if (userPlan !== 'pro') {
-    return (
-      <main className="min-h-screen bg-gray-50">
-        <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-4">
-          <a href="/dashboard" className="text-gray-400 hover:text-gray-600"><ArrowLeft size={20} /></a>
-          <span className="font-semibold">Company Prep</span>
-        </div>
-        <div className="flex items-center justify-center min-h-[80vh] px-6">
-          <div className="max-w-sm w-full text-center">
-            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Lock size={32} className="text-indigo-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Company Prep is a Pro Feature</h2>
-            <p className="text-gray-500 text-sm mb-8">Practice TCS, Infosys, Wipro interviews with AI. Upgrade to Pro to unlock company-specific preparation.</p>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700"
-            >
-              Upgrade to Pro — ₹199/month
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full mt-3 border border-gray-200 py-3 rounded-xl text-gray-600 hover:bg-gray-50"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
+
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">

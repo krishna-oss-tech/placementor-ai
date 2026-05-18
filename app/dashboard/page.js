@@ -97,8 +97,8 @@ export default function Dashboard() {
   const navItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/dashboard', active: true },
     { icon: <BrainCircuit size={20} />, label: 'Mock Interviews', href: '/interview', active: false },
-    { icon: <FileText size={20} />, label: 'Resume Analyzer', href: '/resume', active: false, pro: true },
-    { icon: <Building2 size={20} />, label: 'Company Prep', href: '/company', active: false, pro: true },
+    { icon: <FileText size={20} />, label: 'Resume Analyzer', href: '/resume', active: false, pro: false },
+    { icon: <Building2 size={20} />, label: 'Company Prep', href: '/company', active: false, pro: false },
     { icon: <Activity size={20} />, label: 'Progress Analytics', href: '/progress', active: false },
     { icon: <Zap size={20} />, label: 'Aptitude Quiz', href: '/aptitude', active: false },
   ];
@@ -273,8 +273,8 @@ export default function Dashboard() {
             <div className="grid md:grid-cols-2 gap-4">
               {[
                 { icon: <BrainCircuit size={28} className="text-indigo-600" />, bg: 'bg-indigo-50', title: "Mock Interview", desc: "Practice answering HR & Tech questions under pressure.", href: "/interview", locked: false },
-                { icon: <FileText size={28} className="text-emerald-600" />, bg: 'bg-emerald-50', title: "Resume Analyzer", desc: "Scan your resume against ATS and fix fatal errors instantly.", href: "/resume", locked: userPlan !== 'pro' },
-                { icon: <Building2 size={28} className="text-blue-600" />, bg: 'bg-blue-50', title: "Company Prep", desc: "Target exactly what TCS, Infosys & others will ask you.", href: "/company", locked: userPlan !== 'pro' },
+                { icon: <FileText size={28} className="text-emerald-600" />, bg: 'bg-emerald-50', title: "Resume Analyzer", desc: "Scan your resume against ATS and fix fatal errors instantly.", href: "/resume", locked: false },
+                { icon: <Building2 size={28} className="text-blue-600" />, bg: 'bg-blue-50', title: "Company Prep", desc: "Target exactly what TCS, Infosys & others will ask you.", href: "/company", locked: false },
                 { icon: <Zap size={28} className="text-amber-600" />, bg: 'bg-amber-50', title: "Aptitude Quiz", desc: "Sharpen your quant, logical and verbal reasoning skills.", href: "/aptitude", locked: false }
               ].map((card, i) => (
                 <button
