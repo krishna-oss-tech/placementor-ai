@@ -114,36 +114,36 @@ export default function Home() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 1 }} className="mt-16 flex flex-col items-center gap-4 text-sm font-medium text-slate-500">
-            <p>Trusted by placement aspirants</p>
-            <div className="flex items-center gap-8 opacity-60 grayscale">
-              <div className="flex items-center gap-2"><div className="w-6 h-6 bg-slate-300 rounded-md"></div><span>TCS Prep</span></div>
-              <div className="flex items-center gap-2"><div className="w-6 h-6 bg-slate-300 rounded-md"></div><span>Infosys Prep</span></div>
-              <div className="flex items-center gap-2"><div className="w-6 h-6 bg-slate-300 rounded-md"></div><span>Wipro Prep</span></div>
-              <div className="hidden sm:flex items-center gap-2"><div className="w-6 h-6 bg-slate-300 rounded-md"></div><span>Accenture Prep</span></div>
+            <p>Practice for your upcoming interviews</p>
+            <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 opacity-80">
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"><Building2 size={16} className="text-slate-400" /><span className="text-slate-700">TCS Interview Prep</span></div>
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"><Building2 size={16} className="text-slate-400" /><span className="text-slate-700">Infosys Practice</span></div>
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"><Building2 size={16} className="text-slate-400" /><span className="text-slate-700">Wipro Aptitude</span></div>
+              <div className="hidden sm:flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"><Building2 size={16} className="text-slate-400" /><span className="text-slate-700">Accenture Mock</span></div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Trust & Stats Section */}
+      {/* Trust & Philosophy Section */}
       <section className="py-12 border-y border-slate-200 bg-white px-6">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-100">
             <div className="text-center px-4">
-              <div className="text-3xl md:text-4xl font-bold text-indigo-600 mb-1">1200+</div>
-              <div className="text-sm font-medium text-slate-500">Interviews Practiced</div>
+              <div className="text-xl md:text-2xl font-bold text-slate-800 mb-1">Built for Students</div>
+              <div className="text-sm font-medium text-slate-500">Focused on Indian Placements</div>
             </div>
             <div className="text-center px-4">
-              <div className="text-3xl md:text-4xl font-bold text-indigo-600 mb-1">92%</div>
-              <div className="text-sm font-medium text-slate-500">Improved Confidence</div>
+              <div className="text-xl md:text-2xl font-bold text-slate-800 mb-1">Early Access</div>
+              <div className="text-sm font-medium text-slate-500">Improving actively</div>
             </div>
             <div className="text-center px-4">
-              <div className="text-3xl md:text-4xl font-bold text-indigo-600 mb-1">37%</div>
-              <div className="text-sm font-medium text-slate-500">Avg ATS Score Boost</div>
+              <div className="text-xl md:text-2xl font-bold text-slate-800 mb-1">AI-Powered</div>
+              <div className="text-sm font-medium text-slate-500">Instant actionable feedback</div>
             </div>
             <div className="text-center px-4">
-              <div className="text-3xl md:text-4xl font-bold text-indigo-600 mb-1">24/7</div>
-              <div className="text-sm font-medium text-slate-500">AI Mentor Access</div>
+              <div className="text-xl md:text-2xl font-bold text-slate-800 mb-1">Practice Daily</div>
+              <div className="text-sm font-medium text-slate-500">Build confidence slowly</div>
             </div>
           </div>
         </div>
