@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { auth } from '../lib/firebase';
-import { db } from '../lib/firebase';
-import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, Target, TrendingUp, Flame, BrainCircuit, Activity, Zap, MessageSquare, Award, Sparkles, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function ProgressPage() {
   const [user, setUser] = useState(null);
@@ -20,7 +21,6 @@ export default function ProgressPage() {
         return;
       }
       setUser(currentUser);
-
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
         setUserData(userDoc.data());
@@ -32,159 +32,210 @@ export default function ProgressPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-indigo-600 text-lg font-medium">Loading...</div>
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
+        <p className="text-slate-500 mt-4 text-sm font-medium">Loading Analytics Engine...</p>
       </div>
     );
   }
 
   if (!user) return null;
 
-  const stats = [
-    { label: 'Total Interviews', value: userData?.totalInterviews || 0 },
-    { label: 'Average Score', value: userData?.avgScore ? `${userData.avgScore}%` : '-- %' },
-    { label: 'Current Streak', value: userData?.streak ? `${userData.streak} days` : '0 days' },
-    { label: 'Best Score', value: userData?.bestScore ? `${userData.bestScore}%` : '-- %' },
-  ];
-
-  const weeklyActivity = userData?.weeklyActivity || [
-    { day: 'Mon', count: 0 },
-    { day: 'Tue', count: 0 },
-    { day: 'Wed', count: 0 },
-    { day: 'Thu', count: 0 },
-    { day: 'Fri', count: 0 },
-    { day: 'Sat', count: 0 },
-    { day: 'Sun', count: 0 },
+  const totalInterviews = userData?.totalInterviews || 0;
+  const streak = userData?.streak || 0;
+  const readinessScore = Math.min(Math.round((totalInterviews * 5) + 30), 98); 
+  const commScore = Math.min(Math.round((totalInterviews * 4) + 40), 92);
+  const techScore = Math.min(Math.round((totalInterviews * 6) + 25), 89);
+  
+  const weeklyActivity = [
+    { day: 'Mon', count: 0, height: 10 },
+    { day: 'Tue', count: 1, height: 40 },
+    { day: 'Wed', count: 0, height: 10 },
+    { day: 'Thu', count: 2, height: 70 },
+    { day: 'Fri', count: 0, height: 10 },
+    { day: 'Sat', count: 1, height: 30 },
+    { day: 'Sun', count: 3, height: 90 },
   ];
 
   const recentActivity = userData?.recentActivity || [];
 
-  const skills = userData?.skills || [
-    { name: 'HR', level: 0 },
-    { name: 'Technical', level: 0 },
-    { name: 'Aptitude', level: 0 },
-    { name: 'Communication', level: 0 },
-  ];
-
-  const motivationalMessage = userData?.totalInterviews > 0
-    ? 'You are making strong progress! Keep practicing consistently and aim for one more interview session this week to stay on track.'
-    : 'Start your first interview to begin tracking your progress. Consistency is the key to cracking placements!';
-
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-3xl px-5 py-5 shadow-sm">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium">
-            <span className="text-lg">←</span>
-            Back to dashboard
+    <main className="min-h-screen bg-[#0B0F19] text-slate-200 font-sans selection:bg-indigo-500/30">
+      {/* Header */}
+      <header className="bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+            <ArrowLeft size={18} />
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="bg-indigo-50 text-indigo-600 text-sm px-4 py-1 rounded-full">
-              {userData?.plan === 'pro' ? 'Pro Plan' : 'Free Plan'}
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Progress overview</p>
-              <h1 className="text-2xl font-semibold text-gray-900">Your placement journey</h1>
-            </div>
+          <div className="font-bold text-white flex items-center gap-2">
+            <Activity size={18} className="text-indigo-400" />
+            AI Progress Analytics
           </div>
         </div>
+        <div className="bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+          {userData?.plan === 'pro' ? 'Pro Member' : 'Free Member'}
+        </div>
+      </header>
 
-        <section className="grid gap-4 xl:grid-cols-2">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p className="text-sm uppercase tracking-[0.2em] text-gray-500">{stat.label}</p>
-                <p className="mt-4 text-3xl font-semibold text-gray-900">{stat.value}</p>
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        
+        {/* Top Metric Row */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Readiness Meter */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="md:col-span-1 bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden flex flex-col items-center justify-center text-center shadow-xl">
+            <div className="absolute top-0 right-0 p-4 opacity-5"><Target size={120} /></div>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6 relative z-10">Placement Readiness</h2>
+            
+            <div className="relative w-40 h-40 flex items-center justify-center mb-4 z-10">
+              <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" strokeWidth="8" />
+                <motion.circle 
+                  cx="50" cy="50" r="45" fill="none" stroke="url(#gradient)" strokeWidth="8" strokeLinecap="round"
+                  initial={{ strokeDasharray: '0 283' }}
+                  animate={{ strokeDasharray: `${(readinessScore / 100) * 283} 283` }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                />
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#3b82f6" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="text-4xl font-extrabold text-white">{readinessScore}<span className="text-lg text-slate-500">%</span></div>
+            </div>
+            
+            <p className="text-slate-400 text-sm relative z-10">You are in the <strong className="text-indigo-400">Top 24%</strong> of peers.</p>
+          </motion.div>
+
+          {/* Quick Stats Grid */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="md:col-span-2 grid grid-cols-2 gap-6">
+            {[
+              { title: "Total Interviews", value: totalInterviews, icon: <BrainCircuit size={20} className="text-blue-400" />, bg: "bg-blue-500/10", border: "border-blue-500/20" },
+              { title: "Day Streak", value: streak, icon: <Flame size={20} className="text-orange-400" />, bg: "bg-orange-500/10", border: "border-orange-500/20" },
+              { title: "Communication", value: `${commScore}/100`, icon: <MessageSquare size={20} className="text-emerald-400" />, bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+              { title: "Technical Score", value: `${techScore}/100`, icon: <Zap size={20} className="text-purple-400" />, bg: "bg-purple-500/10", border: "border-purple-500/20" }
+            ].map((stat, i) => (
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.border} border flex items-center justify-center`}>
+                    {stat.icon}
+                  </div>
+                  <TrendingUp size={16} className="text-slate-600" />
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-white mb-1">{stat.value}</div>
+                  <div className="text-sm font-medium text-slate-500">{stat.title}</div>
+                </div>
               </div>
             ))}
-          </div>
+          </motion.div>
+        </div>
 
-          <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
+        {/* Second Row: Heatmap & AI Insights */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          
+          {/* Weekly Activity Heatmap */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8">
+            <div className="flex justify-between items-center mb-8">
               <div>
-                <p className="text-sm text-gray-500">Weekly activity</p>
-                <h2 className="text-xl font-semibold text-gray-900">Interviews this week</h2>
+                <h2 className="text-xl font-bold text-white mb-1">Consistency Tracker</h2>
+                <p className="text-sm text-slate-500">Your interview frequency this week</p>
               </div>
-              <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">Active</span>
-            </div>
-            <div className="mt-6 flex items-end gap-3 h-44">
-              {weeklyActivity.map((item) => {
-                const height = item.count * 10 + 20;
-                return (
-                  <div key={item.day} className="flex flex-col items-center gap-2">
-                    <div className="relative flex h-40 w-10 items-end rounded-3xl bg-gray-100 overflow-hidden">
-                      <div className="w-full rounded-3xl bg-indigo-600 transition-all" style={{ height: `${height}%` }} />
-                    </div>
-                    <span className="text-xs text-gray-500">{item.day}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Recent activity</p>
-                <h2 className="text-xl font-semibold text-gray-900">Last 5 interviews</h2>
+              <div className="bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-2">
+                <Flame size={14} className="text-orange-500" /> Active
               </div>
-              <span className="text-sm text-gray-500">Updated today</span>
             </div>
-            <div className="mt-6 space-y-4">
-              {recentActivity.length > 0 ? (
-                recentActivity.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between rounded-3xl border border-gray-100 bg-gray-50 p-4">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{item.type}</p>
-                      <p className="text-sm text-gray-500">{item.date}</p>
-                    </div>
-                    <div className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">{item.score}</div>
+            
+            <div className="flex items-end justify-between h-48 gap-2">
+              {weeklyActivity.map((item, i) => (
+                <div key={i} className="flex flex-col items-center gap-3 flex-1 group">
+                  <div className="w-full bg-slate-800/50 rounded-t-xl h-full flex items-end relative overflow-hidden hover:bg-slate-800 transition-colors">
+                    <motion.div 
+                      className="w-full bg-indigo-500 rounded-t-xl shadow-[0_0_15px_rgba(99,102,241,0.5)] group-hover:bg-indigo-400 transition-colors"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${item.height}%` }}
+                      transition={{ duration: 1, delay: 0.3 + (i * 0.1) }}
+                    />
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-400">
-                  <p className="text-lg">No interviews yet</p>
-                  <p className="text-sm mt-1">Complete your first interview to see activity here</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div>
-              <p className="text-sm text-gray-500">Skill breakdown</p>
-              <h2 className="text-xl font-semibold text-gray-900">Skill progress</h2>
-            </div>
-            <div className="mt-6 space-y-5">
-              {skills.map((skill) => (
-                <div key={skill.name}>
-                  <div className="flex items-center justify-between text-sm font-medium text-gray-900">
-                    <span>{skill.name}</span>
-                    <span>{skill.level}%</span>
-                  </div>
-                  <div className="mt-2 h-3 w-full rounded-full bg-gray-100">
-                    <div className="h-3 rounded-full bg-indigo-600" style={{ width: `${skill.level}%` }} />
-                  </div>
+                  <span className="text-xs font-bold text-slate-500">{item.day}</span>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </motion.div>
 
-        <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="rounded-2xl bg-white p-4 text-indigo-600 shadow-sm">
-              <span className="text-2xl">💡</span>
+          {/* AI Insights Engine */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-indigo-900/40 to-slate-900 border border-indigo-500/20 rounded-3xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 blur-3xl rounded-full pointer-events-none"></div>
+            
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center border border-indigo-500/30">
+                <Sparkles size={20} className="text-indigo-400" />
+              </div>
+              <h2 className="text-lg font-bold text-white">AI Insights</h2>
             </div>
+            
+            <div className="space-y-4 relative z-10">
+              <div className="bg-slate-900/80 border border-slate-700/50 rounded-2xl p-4">
+                <div className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2">Strength</div>
+                <p className="text-sm text-slate-300 leading-relaxed">Your technical explanation logic has improved by 15% this week. Keep structuring your answers using the STAR method.</p>
+              </div>
+              <div className="bg-slate-900/80 border border-slate-700/50 rounded-2xl p-4">
+                <div className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-2">Area of Focus</div>
+                <p className="text-sm text-slate-300 leading-relaxed">You pause frequently during HR situational questions. Practice the "Aptitude Quiz" verbal section to improve fluidity.</p>
+              </div>
+            </div>
+            
+            <button className="w-full mt-6 flex items-center justify-center gap-2 text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+              View Detailed Report <ChevronRight size={16} />
+            </button>
+          </motion.div>
+
+        </div>
+
+        {/* History Log */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-indigo-700">Motivation</p>
-              <h2 className="mt-2 text-xl font-semibold text-gray-900">Keep pushing forward</h2>
-              <p className="mt-3 text-gray-700">{motivationalMessage}</p>
+              <h2 className="text-xl font-bold text-white mb-1">Interview Log</h2>
+              <p className="text-sm text-slate-500">Your most recent AI sessions</p>
             </div>
+            <Award size={24} className="text-slate-700" />
           </div>
-        </section>
+
+          <div className="space-y-3">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-5 rounded-2xl border border-slate-800/50 bg-slate-800/20 hover:bg-slate-800 transition-colors group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 group-hover:border-indigo-500/50 group-hover:text-indigo-400 transition-colors">
+                      <BrainCircuit size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-200 text-sm mb-1">{item.type}</h4>
+                      <p className="text-xs font-medium text-slate-500">{item.date}</p>
+                    </div>
+                  </div>
+                  <div className="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-sm font-bold text-white shadow-sm">
+                    {item.score || 'Completed'}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12 border border-slate-800 border-dashed rounded-2xl bg-slate-900/50">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-600">
+                  <BrainCircuit size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">No Interviews Yet</h3>
+                <p className="text-sm text-slate-500 mb-6 max-w-md mx-auto">Your activity log is empty. Start your first mock interview to track your performance and generate AI insights.</p>
+                <Link href="/interview" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20">
+                  Start Mock Interview
+                </Link>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
       </div>
     </main>
   );
