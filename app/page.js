@@ -154,7 +154,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">Placement prep feels confusing.</h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">You've studied hard, learned DSA, and built projects. But when the actual placement day arrives, things go wrong.</p>
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">You&apos;ve studied hard, learned DSA, and built projects. But when the actual placement day arrives, things go wrong.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -268,7 +268,7 @@ export default function Home() {
       <section className="py-24 px-6 bg-white">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Don't just take our word for it.</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Don&apos;t just take our word for it.</h2>
             <p className="text-lg text-slate-500 max-w-2xl mx-auto">See how engineering students are transforming their placement journey.</p>
           </div>
           

@@ -182,7 +182,7 @@ export default function ProgressPage() {
               </div>
               <div className="bg-slate-900/80 border border-slate-700/50 rounded-2xl p-4">
                 <div className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-2">Area of Focus</div>
-                <p className="text-sm text-slate-300 leading-relaxed">You pause frequently during HR situational questions. Practice the "Aptitude Quiz" verbal section to improve fluidity.</p>
+                <p className="text-sm text-slate-300 leading-relaxed">You pause frequently during HR situational questions. Practice the &quot;Aptitude Quiz&quot; verbal section to improve fluidity.</p>
               </div>
             </div>
             

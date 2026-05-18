@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Send, Loader, Mic, Video, Settings2, Sparkles, StopCircle, Trophy, Activity } from 'lucide-react';
+import { ArrowLeft, Send, Loader, Mic, Settings2, Sparkles, StopCircle, Trophy, Activity } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Link from 'next/link';
@@ -361,7 +361,7 @@ export default function Interview() {
               <Trophy className="text-amber-400" size={28} />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Daily Limit Reached</h2>
-            <p className="text-slate-400 text-sm mb-8 leading-relaxed">You've completed your 3 free interviews for today! Upgrade to Pro for unlimited AI practice and deep analytics.</p>
+            <p className="text-slate-400 text-sm mb-8 leading-relaxed">You&apos;ve completed your 3 free interviews for today! Upgrade to Pro for unlimited AI practice and deep analytics.</p>
             
             <div className="flex flex-col gap-3">
               <Link href="/dashboard" className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20">
