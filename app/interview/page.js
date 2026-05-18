@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Send, Loader, Mic, Settings2, Sparkles, StopCircle, Trophy, Activity } from 'lucide-react';
+import { ArrowLeft, Send, Loader, Mic, Settings2, Sparkles, StopCircle, Trophy, Activity, BrainCircuit } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Link from 'next/link';
